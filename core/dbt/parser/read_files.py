@@ -179,7 +179,7 @@ def generate_dbt_ignore_spec(project_root):
     ignore_spec = None
     if os.path.exists(ignore_file_path):
         with open(ignore_file_path) as f:
-            ignore_spec = pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, f)
+            ignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
     return ignore_spec
 
 

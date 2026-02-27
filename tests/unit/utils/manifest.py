@@ -99,6 +99,12 @@ def make_model(
     if fqn_extras is None:
         fqn_extras = []
 
+    # Normalize version/latest_version to str to match mashumaro roundtrip
+    # behavior (Union[str, float, None] deserializes int -> str)
+    if version is not None:
+        version = str(version)
+    if latest_version is not None:
+        latest_version = str(latest_version)
     fqn = [pkg] + fqn_extras + [name]
     if version:
         fqn.append(f"v{version}")
@@ -480,10 +486,14 @@ def make_semantic_model(
     if path is None:
         path = "schema.yml"
 
+    # model field is str type - store as ref string, not ModelNode object
+    # This matches mashumaro roundtrip behavior and production dbt usage
+    model_ref_str = f"ref('{model.name}')" if hasattr(model, 'name') else str(model)
+
     return SemanticModel(
         name=name,
         resource_type=NodeType.SemanticModel,
-        model=model,
+        model=model_ref_str,
         node_relation=NodeRelation(
             alias=model.alias,
             schema_name="dbt",

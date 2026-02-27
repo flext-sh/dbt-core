@@ -22,7 +22,20 @@ class TestFlags:
         return ctx
 
     @pytest.fixture(scope="class")
-    def run_context(self) -> click.Context:
+    def monkeypatch_class(self):
+        from _pytest.monkeypatch import MonkeyPatch
+        mp = MonkeyPatch()
+        mp.delenv("DBT_LOG_LEVEL", raising=False)
+        mp.delenv("DBT_LOG_LEVEL_FILE", raising=False)
+        mp.delenv("DBT_LOG_FORMAT", raising=False)
+        mp.delenv("DBT_LOG_FORMAT_FILE", raising=False)
+        mp.delenv("DBT_USE_COLORS", raising=False)
+        mp.delenv("DBT_USE_COLORS_FILE", raising=False)
+        yield mp
+        mp.undo()
+
+    @pytest.fixture(scope="class")
+    def run_context(self, monkeypatch_class) -> click.Context:
         return self.make_dbt_context("run", ["run"])
 
     @pytest.fixture
